@@ -1,6 +1,7 @@
 package com.fzy.weblog.admin.controller;
 
 import com.fzy.weblog.admin.model.vo.category.AddCategoryReqVO;
+import com.fzy.weblog.admin.model.vo.category.DeleteCategoryReqVO;
 import com.fzy.weblog.admin.service.AdminCategoryService;
 import com.fzy.weblog.common.aspect.ApiOperationLog;
 import com.fzy.weblog.common.utils.Response;
@@ -24,6 +25,13 @@ public class AdminCategoryController {
     @ApiOperationLog(description = "添加分类")
     public Response addCategory(@RequestBody @Validated AddCategoryReqVO addCategoryReqVO) {
         return adminCategoryService.addCategory(addCategoryReqVO);
+
+    }
+    @PostMapping("/category/delete")
+    @ApiOperation(value = "删除分类")
+    @ApiOperationLog(description = "删除分类")
+    public Response deleteCategory(@RequestBody @Validated DeleteCategoryReqVO deleteCategoryReqVO) {
+        return adminCategoryService.deleteCategory(deleteCategoryReqVO);
 
     }
 }

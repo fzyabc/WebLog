@@ -1,6 +1,7 @@
 package com.fzy.weblog.admin.service.impl;
 
 import com.fzy.weblog.admin.model.vo.category.AddCategoryReqVO;
+import com.fzy.weblog.admin.model.vo.category.DeleteCategoryReqVO;
 import com.fzy.weblog.admin.service.AdminCategoryService;
 import com.fzy.weblog.common.domain.dos.CategoryDO;
 import com.fzy.weblog.common.domain.mapper.CategoryMapper;
@@ -29,6 +30,14 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
         //如果不存在添加分类
         CategoryDO insertCategoryDO = CategoryDO.builder().name(categoryName.trim()).build();
         categoryMapper.insert(insertCategoryDO);
+        return Response.success();
+    }
+
+    @Override
+    public Response deleteCategory(DeleteCategoryReqVO deleteCategoryReqVO) {
+        Long categoryId = deleteCategoryReqVO.getId();
+        //删除分类
+        categoryMapper.deleteById(categoryId);
         return Response.success();
     }
 }
