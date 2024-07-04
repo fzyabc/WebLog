@@ -1,9 +1,11 @@
 package com.fzy.weblog.admin.controller;
 
+import com.fzy.weblog.admin.model.vo.category.FindCategoryPageListReqVO;
 import com.fzy.weblog.admin.model.vo.category.AddCategoryReqVO;
 import com.fzy.weblog.admin.model.vo.category.DeleteCategoryReqVO;
 import com.fzy.weblog.admin.service.AdminCategoryService;
 import com.fzy.weblog.common.aspect.ApiOperationLog;
+import com.fzy.weblog.common.utils.PageResponse;
 import com.fzy.weblog.common.utils.Response;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,11 +29,24 @@ public class AdminCategoryController {
         return adminCategoryService.addCategory(addCategoryReqVO);
 
     }
+
     @PostMapping("/category/delete")
     @ApiOperation(value = "删除分类")
     @ApiOperationLog(description = "删除分类")
     public Response deleteCategory(@RequestBody @Validated DeleteCategoryReqVO deleteCategoryReqVO) {
         return adminCategoryService.deleteCategory(deleteCategoryReqVO);
 
+    }
+    @PostMapping("/category/list")
+    @ApiOperation(value = "分类分页数据获取")
+    @ApiOperationLog(description = "分类分页数据获取")
+    public PageResponse findCategoryPageList(@RequestBody @Validated FindCategoryPageListReqVO findCategoryPageListReqVO) {
+        return adminCategoryService.findCategoryPageList(findCategoryPageListReqVO);
+    }
+    @PostMapping("/category/select/list")
+    @ApiOperation(value = "分类 Select 下拉列表数据获取")
+    @ApiOperationLog(description = "分类 Select 下拉列表数据获取")
+    public Response findCategorySelectList() {
+        return adminCategoryService.findCategorySelectList();
     }
 }

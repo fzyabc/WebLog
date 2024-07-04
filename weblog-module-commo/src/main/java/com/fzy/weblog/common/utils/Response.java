@@ -21,6 +21,12 @@ public class Response<T>implements Serializable {
     Response<T> response = new Response<T>();
     return response;
     }
+    public static <T> Response<T> success(String msg) {
+
+        Response<T> response = new Response<T>();
+        response.setMessage(msg);
+        return response;
+    }
     public static <T> Response<T> success(T data) {
         Response<T> response = new Response<>();
         response.setData(data);

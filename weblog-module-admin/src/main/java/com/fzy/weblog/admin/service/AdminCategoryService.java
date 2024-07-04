@@ -1,7 +1,9 @@
 package com.fzy.weblog.admin.service;
 
+import com.fzy.weblog.admin.model.vo.category.FindCategoryPageListReqVO;
 import com.fzy.weblog.admin.model.vo.category.AddCategoryReqVO;
 import com.fzy.weblog.admin.model.vo.category.DeleteCategoryReqVO;
+import com.fzy.weblog.common.utils.PageResponse;
 import com.fzy.weblog.common.utils.Response;
 
 public interface AdminCategoryService {
@@ -16,5 +18,14 @@ public interface AdminCategoryService {
      * @param id
      * @return
      */
+
     Response deleteCategory(DeleteCategoryReqVO deleteCategoryReqVO);
+    /**
+     * 查询分类下拉列表
+     * @return
+     */
+    Response findCategorySelectList();
+
+
+    PageResponse findCategoryPageList(FindCategoryPageListReqVO findCategoryPageListReqVO);
 }

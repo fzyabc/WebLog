@@ -1,4 +1,4 @@
-package com.fzy.weblog.admin.model;
+package com.fzy.weblog.admin.model.vo.category;
 
 import com.fzy.weblog.model.BasePageQuery;
 import io.swagger.annotations.ApiModel;
