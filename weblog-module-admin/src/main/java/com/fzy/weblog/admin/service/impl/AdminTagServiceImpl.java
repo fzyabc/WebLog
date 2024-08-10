@@ -1,12 +1,16 @@
 package com.fzy.weblog.admin.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fzy.weblog.admin.model.vo.tag.*;
 import com.fzy.weblog.admin.service.AdminTagService;
+import com.fzy.weblog.common.domain.dos.ArticleTagRelDO;
 import com.fzy.weblog.common.domain.dos.TagDO;
+import com.fzy.weblog.common.domain.mapper.ArticleTagRelMapper;
 import com.fzy.weblog.common.domain.mapper.TagMapper;
 import com.fzy.weblog.common.enums.ResponseCodeEnum;
+import com.fzy.weblog.common.exception.BizException;
 import com.fzy.weblog.common.utils.PageResponse;
 import com.fzy.weblog.common.utils.Response;
 import com.fzy.weblog.model.vo.SelectRspVO;
@@ -26,6 +30,8 @@ import java.util.stream.Collectors;
 public class AdminTagServiceImpl extends ServiceImpl<TagMapper, TagDO>implements AdminTagService {
 @Autowired
     private TagMapper tagMapper;
+    @Autowired
+    private ArticleTagRelMapper articleTagRelMapper;
 
     @Override
     public Response addTags(AddTagReqVO addTagReqVO) {
@@ -71,6 +77,11 @@ vos=records.stream().map(tagDO -> FindTagPageListRspVO.builder()
     @Override
     public Response deleteTag(DeleteTagReqVO deleteTagReqVO) {
         Long tagId=deleteTagReqVO.getId();
+        ArticleTagRelDO articleTagRelDO = articleTagRelMapper.selectOneByTagId(tagId);
+        if (Objects.nonNull(articleTagRelDO)){
+            log.warn("==> 此标签下包含文章，无法删除，tagId: {}", tagId);
+            throw new BizException(ResponseCodeEnum.TAG_CAN_NOT_DELETE);
+        }
         int count=tagMapper.deleteById(tagId);
         return count==1?Response.success("删除成功"):Response.fail(ResponseCodeEnum.TAG_NOT_EXISTED);
     }
@@ -100,6 +111,25 @@ vos=records.stream().map(tagDO -> FindTagPageListRspVO.builder()
 
                 .label(tagDO.getName()).value(tagDO.getId())
                 .build()).collect(Collectors.toList());
+
+        return Response.success(vos);
+    }
+
+    @Override
+    public Response findTagSelectList() {
+        // 查询所有标签, Wrappers.emptyWrapper() 表示查询条件为空
+        List<TagDO> tagDOS = tagMapper.selectList(Wrappers.emptyWrapper());
+
+        // DO 转 VO
+        List<SelectRspVO> vos = null;
+        if (!CollectionUtils.isEmpty(tagDOS)) {
+            vos = tagDOS.stream()
+                    .map(tagDO -> SelectRspVO.builder()
+                            .label(tagDO.getName())
+                            .value(tagDO.getId())
+                            .build())
+                    .collect(Collectors.toList());
+        }
 
         return Response.success(vos);
     }

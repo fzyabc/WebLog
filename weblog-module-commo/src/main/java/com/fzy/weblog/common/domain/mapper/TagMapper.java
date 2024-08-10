@@ -2,6 +2,7 @@ package com.fzy.weblog.common.domain.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fzy.weblog.common.domain.dos.CategoryDO;
 import com.fzy.weblog.common.domain.dos.TagDO;
@@ -34,4 +35,13 @@ queryWrapper.like(TagDO::getName, key).orderByDesc(TagDO::getCreateTime);
 return selectList(queryWrapper);
 
 }
+    /**
+     * 根据标签 ID 批量查询
+     * @param tagIds
+     * @return
+     */
+    default List<TagDO> selectByIds(List<Long> tagIds) {
+        return selectList(Wrappers.<TagDO>lambdaQuery()
+                .in(TagDO::getId, tagIds));
+    }
 }

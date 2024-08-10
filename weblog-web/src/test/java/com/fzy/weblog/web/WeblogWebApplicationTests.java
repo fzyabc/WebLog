@@ -2,7 +2,6 @@ package com.fzy.weblog.web;
 
 import com.fzy.weblog.common.domain.dos.UserDO;
 import com.fzy.weblog.common.domain.mapper.UserMapper;
-import com.fzy.weblog.web.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
