@@ -29,6 +29,12 @@ public interface AdminArticleService {
      * @param findArticleDetailReqVO
      * @return
      */
+
     Response findArticleDetail(FindArticleDetailReqVO findArticleDetailReqVO);
+    /**
+     * 更新文章
+     * @param updateArticleReqVO
+     * @return
+     */
     Response updateArticle(UpdateArticleReqVO updateArticleReqVO);
 }

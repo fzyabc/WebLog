@@ -158,7 +158,13 @@ vos=records.stream().map(articleDO ->
         return Response.success(findArticleDetailRspVO);
     }
 
+    /**
+     * 更新文章
+     * @param updateArticleReqVO
+     * @return
+     */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Response updateArticle(UpdateArticleReqVO updateArticleReqVO) {
         Long articleId = updateArticleReqVO.getId();
         // 1. VO 转 ArticleDO, 并更新
@@ -180,7 +186,7 @@ vos=records.stream().map(articleDO ->
                 .articleId(articleId)
                 .content(updateArticleReqVO.getContent())
                 .build();
-        articleContentMapper.deleteByArticleId(articleId);
+        articleContentMapper.updateByArticleId(articleContentDO);
         // 3. 更新文章分类
         Long categoryId = updateArticleReqVO.getCategoryId();
         // 3.1 校验提交的分类是否真实存在
