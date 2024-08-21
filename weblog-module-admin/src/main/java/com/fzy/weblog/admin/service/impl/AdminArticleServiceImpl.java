@@ -1,6 +1,9 @@
 package com.fzy.weblog.admin.service.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fzy.weblog.admin.event.DeleteArticleEvent;
+import com.fzy.weblog.admin.event.PublishArticleEvent;
+import com.fzy.weblog.admin.event.UpdateArticleEvent;
 import com.fzy.weblog.admin.model.vo.article.*;
 import com.fzy.weblog.admin.service.AdminArticleService;
 import com.fzy.weblog.common.domain.dos.*;
@@ -12,6 +15,7 @@ import com.fzy.weblog.common.utils.Response;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -39,6 +43,9 @@ public class AdminArticleServiceImpl implements AdminArticleService {
     private TagMapper tagMapper;
     @Autowired
     private ArticleTagRelMapper articleTagRelMapper;
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -76,7 +83,8 @@ public class AdminArticleServiceImpl implements AdminArticleService {
         // 4. 保存文章关联的标签集合
         List<String> publishTags = publishArticleReqVO.getTags();
         insertTags(articleId,publishTags);
-
+        // 发送文章发布事件
+        eventPublisher.publishEvent(new PublishArticleEvent(this, articleId));
         return Response.success();
 
     }
@@ -99,7 +107,8 @@ articleContentMapper.deleteByArticleId(articleId);
 
         // 4. 删除文章-标签关联记录
         articleTagRelMapper.deleteByArticleId(articleId);
-
+        // 发布文章删除事件
+        eventPublisher.publishEvent(new DeleteArticleEvent(this, articleId));
         return Response.success();
     }
 
@@ -206,6 +215,8 @@ vos=records.stream().map(articleDO ->
         articleTagRelMapper.deleteByArticleId(articleId);
         List<String> publishTags = updateArticleReqVO.getTags();
         insertTags(articleId, publishTags);
+        // 发布文章修改事件
+        eventPublisher.publishEvent(new UpdateArticleEvent(this, articleId));
         return Response.success();
     }
 

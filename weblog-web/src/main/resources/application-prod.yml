@@ -22,3 +22,5 @@ minio:
   bucketName: weblog
 logging:
   config: classpath:logback-weblog.xml
+lucene:
+  indexDir: /app/weblog/lucene-index

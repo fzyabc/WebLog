@@ -67,7 +67,10 @@
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.fzy</groupId>
+            <artifactId>weblog-module-search</artifactId>
+        </dependency>
     </dependencies>
 
 

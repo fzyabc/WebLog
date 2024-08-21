@@ -31,10 +31,11 @@ public class PageResponse<T> extends Response<List<T>> {
 
     /**
      * 成功响应
+     *
      * @param page Mybatis Plus 提供的分页接口
      * @param data
-     * @return
      * @param <T>
+     * @return
      */
     public static <T> PageResponse<T> success(IPage page, List<T> data) {
         PageResponse<T> response = new PageResponse<>();
@@ -47,5 +48,16 @@ public class PageResponse<T> extends Response<List<T>> {
         return response;
     }
 
-
+    public static <T> PageResponse<T> success(long total, long current, long size, List<T> data) {
+        PageResponse<T> response = new PageResponse<>();
+        response.setSuccess(true);
+        response.setCurrent(current);
+        response.setSize(size);
+        // 计算总页数
+        int pages = (int) Math.ceil((double) total / size);
+        response.setPages(pages);
+        response.setTotal(total);
+        response.setData(data);
+        return response;
+    }
 }

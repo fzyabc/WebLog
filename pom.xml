@@ -27,6 +27,8 @@
         <module>weblog-module-commo</module>
         <!-- JWT 模块 -->
         <module>weblog-module-jwt</module>
+        <module>weblog-module-search</module>
+
     </modules>
     <!-- 版本号统一管理 -->
     <properties>
@@ -55,7 +57,8 @@
         <minio.version>8.5.2</minio.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
 
-
+        <lucene.version>8.11.1</lucene.version>
+        <commons-io.version>2.11.0</commons-io.version>
         <commonmark.version>0.20.0</commonmark.version>
     </properties>
     <!-- 统一依赖管理 -->
@@ -64,6 +67,11 @@
     <dependency>
         <groupId>com.fzy</groupId>
         <artifactId>weblog-module-admin</artifactId>
+        <version>${revision}</version>
+    </dependency>
+    <dependency>
+        <groupId>com.fzy</groupId>
+        <artifactId>weblog-module-search</artifactId>
         <version>${revision}</version>
     </dependency>
     <dependency>
@@ -77,6 +85,15 @@
         <artifactId>guava</artifactId>
         <version>${guava.version}</version>
     </dependency>
+
+    <!-- 工具包 -->
+    <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>${commons-io.version}</version>
+    </dependency>
+
+
     <dependency>
         <groupId>com.squareup.okhttp3</groupId>
         <artifactId>okhttp</artifactId>
@@ -180,6 +197,37 @@
         <artifactId>commonmark-ext-task-list-items</artifactId>
         <version>${commonmark.version}</version>
     </dependency>
+
+    <!-- lucene 全文检索引擎 -->
+    <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-core</artifactId>
+        <version>${lucene.version}</version>
+    </dependency>
+
+    <!-- 中文分词 -->
+    <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-analyzers-smartcn</artifactId>
+        <version>${lucene.version}</version>
+    </dependency>
+
+    <!-- 关键词高亮 -->
+    <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-highlighter</artifactId>
+        <version>${lucene.version}</version>
+    </dependency>
+
+    <!-- 查询解析器 -->
+    <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-queryparser</artifactId>
+        <version>${lucene.version}</version>
+    </dependency>
+
+
+
 </dependencies>
     </dependencyManagement>
     <build>

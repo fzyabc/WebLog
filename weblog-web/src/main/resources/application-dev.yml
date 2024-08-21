@@ -28,3 +28,8 @@ minio:
   accessKey: admin
   secretKey: 123456789
   bucketName: weblog
+  #=================================================================
+  # Lucene 全文检索
+  #=================================================================
+lucene:
+  indexDir: D:\\java_workspace\\lucene-index

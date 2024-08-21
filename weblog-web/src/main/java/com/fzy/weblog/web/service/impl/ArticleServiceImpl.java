@@ -14,6 +14,7 @@ import com.fzy.weblog.web.model.vo.article.*;
 import com.fzy.weblog.web.model.vo.category.FindCategoryListRspVO;
 import com.fzy.weblog.web.model.vo.tag.FindTagListRspVO;
 import com.fzy.weblog.web.service.ArticleService;
+import com.fzy.weblog.web.utils.MarkdownStatsUtil;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,13 +131,17 @@ vos=articleDOS.stream().map(articleDO -> FindIndexArticlePageListRspVO.builder()
 
         // 查询正文
         ArticleContentDO articleContentDO = articleContentMapper.selectByArticleId(articleId);
-
+        String content = articleContentDO.getContent();
+        // 计算 md 正文字数
+        Integer totalWords = MarkdownStatsUtil.calculateWordCount(content);
         // DO 转 VO
         FindArticleDetailRspVO vo = FindArticleDetailRspVO.builder()
                 .title(articleDO.getTitle())
                 .createTime(articleDO.getCreateTime())
                 .content(MarkdownHelper.convertMarkdown2Html(articleContentDO.getContent()))
                 .readNum(articleDO.getReadNum())
+                .totalWords(totalWords)
+                .readTime(MarkdownStatsUtil.calculateReadingTime(totalWords))
                 .build();
 
         // 查询所属分类
