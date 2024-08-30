@@ -5,10 +5,14 @@ import com.fzy.weblog.admin.event.DeleteArticleEvent;
 import com.fzy.weblog.admin.event.PublishArticleEvent;
 import com.fzy.weblog.admin.event.UpdateArticleEvent;
 import com.fzy.weblog.admin.model.vo.article.*;
+import com.fzy.weblog.admin.model.vo.wiki.UpdateWikiCatalogItemReqVO;
+import com.fzy.weblog.admin.model.vo.wiki.UpdateWikiCatalogReqVO;
 import com.fzy.weblog.admin.service.AdminArticleService;
 import com.fzy.weblog.common.domain.dos.*;
 import com.fzy.weblog.common.domain.mapper.*;
+import com.fzy.weblog.common.enums.ArticleTypeEnum;
 import com.fzy.weblog.common.enums.ResponseCodeEnum;
+import com.fzy.weblog.common.enums.WikiCatalogLevelEnum;
 import com.fzy.weblog.common.exception.BizException;
 import com.fzy.weblog.common.utils.PageResponse;
 import com.fzy.weblog.common.utils.Response;
@@ -22,10 +26,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,6 +46,8 @@ public class AdminArticleServiceImpl implements AdminArticleService {
     private ArticleTagRelMapper articleTagRelMapper;
     @Autowired
     private ApplicationEventPublisher eventPublisher;
+    @Autowired
+    private WikiCatalogMapper wikiCatalogMapper;
 
 
     @Override
@@ -119,8 +122,9 @@ articleContentMapper.deleteByArticleId(articleId);
         String title = findArticlePageListReqVO.getTitle();
         LocalDate startDate = findArticlePageListReqVO.getStartDate();
         LocalDate endDate = findArticlePageListReqVO.getEndDate();
+        Integer type = findArticlePageListReqVO.getType();
         //执行分页查询
-        Page<ArticleDO> page=articleMapper.selectPageList(current, size, title, startDate, endDate);
+        Page<ArticleDO> page=articleMapper.selectPageList(current, size, title, startDate, endDate,type);
         //获取分页数据
         List<ArticleDO> records = page.getRecords();
         //DO转VO
@@ -132,6 +136,7 @@ vos=records.stream().map(articleDO ->
                 .title(articleDO.getTitle())
                 .cover(articleDO.getCover())
                 .createTime(articleDO.getCreateTime())
+            .isTop(articleDO.getWeight()>0)
                 .build()).collect(Collectors.toList());
 
         }
@@ -217,6 +222,110 @@ vos=records.stream().map(articleDO ->
         insertTags(articleId, publishTags);
         // 发布文章修改事件
         eventPublisher.publishEvent(new UpdateArticleEvent(this, articleId));
+        return Response.success();
+    }
+
+    /**
+     * 更新文章是否置顶
+     *
+     * @param updateArticleIsTopReqVO
+     * @return
+     */
+    @Override
+    public Response updateArticleIsTop(UpdateArticleIsTopReqVO updateArticleIsTopReqVO) {
+       Long articleId = updateArticleIsTopReqVO.getId();
+       Boolean isTop = updateArticleIsTopReqVO.getIsTop();
+        // 默认权重为 0
+        Integer weight = 0;
+        if (isTop){
+            ArticleDO articleDO = articleMapper.selectMaxWeight();
+            Integer maxWeight = articleDO.getWeight();
+            weight = maxWeight + 1;
+        }
+        // 更新该篇文章的权重值
+        articleMapper.updateById(ArticleDO.builder()
+                .id(articleId).weight(weight).build());
+        return Response.success();
+    }
+
+    /**
+     * 更新知识库目录
+     *
+     * @param updateWikiCatalogReqVO
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Response updateWikiCatalogs(UpdateWikiCatalogReqVO updateWikiCatalogReqVO) {
+Long wikiId = updateWikiCatalogReqVO.getId();
+// 目录
+        List<UpdateWikiCatalogItemReqVO> catalogs=updateWikiCatalogReqVO.getCatalogs();
+        // 1. 先将此知识库中的所有文章类型更新为普通
+        // 查出此 wiki 下所有的文章 ID
+        List<WikiCatalogDO> wikiCatalogDOS=wikiCatalogMapper.selectByWikiId(wikiId);
+        List<Long> articleIds=wikiCatalogDOS.stream()
+                .filter(wikiCatalogDO -> Objects.nonNull(wikiCatalogDO.getArticleId()))
+                .map(WikiCatalogDO::getArticleId).collect(Collectors.toList());
+        // 2. 先删除所有此知识库下所有目录
+        wikiCatalogMapper.deleteByWikiId(wikiId);
+        // 3. 再重新插入新的目录数据
+        // 若入参传入的目录不为空
+        if (!CollectionUtils.isEmpty(catalogs)){
+            for (int i=0;i<catalogs.size();i++){
+UpdateWikiCatalogItemReqVO vo=catalogs.get(i);
+List<UpdateWikiCatalogItemReqVO> children=vo.getChildren();
+vo.setSort(i+1);
+if (!CollectionUtils.isEmpty(children)){
+for (int j=0;j<children.size();j++){
+children.get(j).setSort(j+1);
+}
+}
+            }
+            // VO 转 DO
+            catalogs.forEach(catalog->{
+                // 一级目录
+                WikiCatalogDO wikiCatalogDO=WikiCatalogDO.builder()
+                        .wikiId(wikiId)
+                        .title(catalog.getTitle())
+                        .sort(catalog.getSort())
+                        .level(catalog.getLevel())
+                        .build();
+                // 添加一级目录
+                wikiCatalogMapper.insert(wikiCatalogDO);
+// 一级目录 ID
+                Long catalogId = wikiCatalogDO.getId();
+                List<UpdateWikiCatalogItemReqVO> children=catalog.getChildren();
+                // 需要被更新 type 字段的所有文章 ID
+                List<Long> updateArticleIds=Lists.newArrayList();
+                if (!CollectionUtils.isEmpty(children)){
+                    List<WikiCatalogDO> level2Catalogs=Lists.newArrayList();
+                    // VO 转 DO
+                    children.forEach(child->{
+                        level2Catalogs.add(WikiCatalogDO.builder()
+                                .wikiId(wikiId)
+                                .title(child.getTitle())
+                                .level(WikiCatalogLevelEnum.TWO.getValue())
+                                .sort(child.getSort())
+                                .articleId(child.getArticleId())
+                                .parentId(catalogId)
+                                .createTime(LocalDateTime.now())
+                                .updateTime(LocalDateTime.now())
+                                .isDeleted(Boolean.FALSE)
+                                .build());
+
+                        updateArticleIds.add(child.getArticleId());
+
+
+            });
+                    // 批量插入二级目录数据
+                    wikiCatalogMapper.insertBatchSomeColumn(level2Catalogs);
+                    // 更新相关文章的 type 字段，知识库类型
+                    articleMapper.updateByIds(ArticleDO.builder()
+                            .type(ArticleTypeEnum.WIKI.getValue()).build(), updateArticleIds);
+        }
+            });
+        }
+
         return Response.success();
     }
 

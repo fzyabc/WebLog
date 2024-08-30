@@ -1,6 +1,7 @@
 package com.fzy.weblog.admin.service;
 
 import com.fzy.weblog.admin.model.vo.article.*;
+import com.fzy.weblog.admin.model.vo.wiki.UpdateWikiCatalogReqVO;
 import com.fzy.weblog.common.utils.Response;
 
 public interface AdminArticleService {
@@ -37,4 +38,17 @@ public interface AdminArticleService {
      * @return
      */
     Response updateArticle(UpdateArticleReqVO updateArticleReqVO);
+    /**
+     * 更新文章是否置顶
+     * @param updateArticleIsTopReqVO
+     * @return
+     */
+    Response updateArticleIsTop(UpdateArticleIsTopReqVO updateArticleIsTopReqVO);
+
+    /**
+     * 更新知识库目录
+     * @param updateWikiCatalogReqVO
+     * @return
+     */
+    Response updateWikiCatalogs(UpdateWikiCatalogReqVO updateWikiCatalogReqVO);
 }

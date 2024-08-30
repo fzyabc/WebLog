@@ -47,7 +47,7 @@ public class ArticleServiceImpl implements ArticleService {
         Long current = findIndexArticlePageListReqVO.getCurrent();
         Long size = findIndexArticlePageListReqVO.getSize();
 // 第一步：分页查询文章主体记录
-        Page<ArticleDO> page =articleMapper.selectPageList(current, size, null,null, null);
+        Page<ArticleDO> page =articleMapper.selectPageList(current, size, null,null, null,null);
         // 返回的分页数据
         List<ArticleDO> articleDOS= page.getRecords();
         List<FindIndexArticlePageListRspVO> vos=null;
@@ -58,7 +58,7 @@ vos=articleDOS.stream().map(articleDO -> FindIndexArticlePageListRspVO.builder()
                 .summary(articleDO.getSummary())
                 .cover(articleDO.getCover())
                 .createTime(articleDO.getCreateTime())
-
+        .isTop(articleDO.getWeight()>0)
                 .build()).collect(Collectors.toList());
 
             // 拿到所有文章的 ID 集合
@@ -142,6 +142,7 @@ vos=articleDOS.stream().map(articleDO -> FindIndexArticlePageListRspVO.builder()
                 .readNum(articleDO.getReadNum())
                 .totalWords(totalWords)
                 .readTime(MarkdownStatsUtil.calculateReadingTime(totalWords))
+                .updateTime(articleDO.getUpdateTime())
                 .build();
 
         // 查询所属分类

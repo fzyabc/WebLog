@@ -15,20 +15,32 @@ import java.util.List;
 import java.util.Objects;
 
 public interface ArticleMapper extends BaseMapper<ArticleDO> {
-    default Page<ArticleDO> selectPageList(Long current, Long size, String title, LocalDate startDate, LocalDate endDate) {
-       //分页对象
+    /**
+     * 分页查询
+     * @param current
+     * @param size
+     * @param title
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+
+    default Page<ArticleDO> selectPageList(Long current, Long size, String title,
+                                           LocalDate startDate, LocalDate endDate, Integer type) {
+        // 分页对象(查询第几页、每页多少数据)
         Page<ArticleDO> page = new Page<>(current, size);
-        //构建查询条件
-        LambdaQueryWrapper<ArticleDO> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.like(StringUtils.isNotBlank(title), ArticleDO::getTitle, title)
+
+        // 构建查询条件
+        LambdaQueryWrapper<ArticleDO> wrapper = Wrappers.<ArticleDO>lambdaQuery()
+                .like(StringUtils.isNotBlank(title), ArticleDO::getTitle, title) // like 模块查询
                 .ge(Objects.nonNull(startDate), ArticleDO::getCreateTime, startDate) // 大于等于 startDate
                 .le(Objects.nonNull(endDate), ArticleDO::getCreateTime, endDate)  // 小于等于 endDate
+                .eq(Objects.nonNull(type), ArticleDO::getType, type) // 文章类型
+                .orderByDesc(ArticleDO::getWeight) // 按权重倒序
                 .orderByDesc(ArticleDO::getCreateTime); // 按创建时间倒叙
 
-        return selectPage(page, queryWrapper);
+        return selectPage(page, wrapper);
     }
-    // 省略...
-
     /**
      * 根据文章 ID 批量分页查询
      * @param current
@@ -104,4 +116,25 @@ public interface ArticleMapper extends BaseMapper<ArticleDO> {
 return update(null, Wrappers.<ArticleDO>lambdaUpdate().setSql("read_num = read_num + 1")
         .eq(ArticleDO::getId, articleId));
     }
+
+    /**
+     * 查询最大权重值记录
+     * @return
+     */
+    default ArticleDO selectMaxWeight(){
+        return selectOne(Wrappers.<ArticleDO>lambdaQuery()
+                .orderByDesc(ArticleDO::getWeight)
+                .last("LIMIT 1"));
+    }
+    /**
+     * 批量更新文章
+     * @param articleDO
+     * @param ids
+     * @return
+     */
+    default int updateByIds(ArticleDO articleDO, List<Long> ids){
+return update(articleDO,Wrappers.<ArticleDO>lambdaUpdate()
+        .in(ArticleDO::getId,ids));
+    }
 }
+
