@@ -60,4 +60,10 @@ public class Response<T>implements Serializable {
         response.setMessage(baseExceptionInterface.getErrorMessage());
         return response;
     }
+    public static <T> Response<T> fail() {
+        Response<T> response = new Response<>();
+        response.setSuccess(false);
+
+        return response;
+    }
 }

@@ -15,6 +15,13 @@ spring:
       max-lifetime: 1800000
       connection-timeout: 30000
       connection-test-query: SELECT 1
+  mail:
+    host: smtp.qq.com
+    username: 2215697149@qq.com
+    password: pfkkqlkqhqxneadd
+    default-encoding: UTF-8
+    protocol: smtps
+    port: 465
 jwt:
   # 签发人
   issuer: fzy

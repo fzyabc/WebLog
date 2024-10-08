@@ -13,6 +13,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -28,11 +33,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable(). // 禁用 csrf
+        http.cors().and()
+        .csrf().disable(). // 禁用 csrf
                 formLogin().disable() // 禁用表单登录
                 .apply(jwtAuthenticationSecurityConfig) // 设置用户登录认证相关配置
                 .and()
                 .authorizeHttpRequests()
+                .mvcMatchers("/admin/tag/export").permitAll() // 允许 /admin/tag/export 这个接口不进行拦截
+                .mvcMatchers("/admin/tag/import").permitAll()
                 .mvcMatchers("/admin/**").authenticated() // 认证所有以 /admin 为前缀的 URL 资源
                 .anyRequest().permitAll() // 其他都需要放行，无需认证
                 .and()
@@ -44,6 +52,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class) // 将 Token 校验过滤器添加到用户认证过滤器之前
         ;
+    }
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173")); // 允许的来源
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 允许的方法
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type")); // 允许的请求头
+        configuration.setAllowCredentials(true); // 允许携带凭证
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration); // 配置 CORS 规则
+        return source;
     }
 
     /**

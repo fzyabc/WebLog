@@ -1,9 +1,11 @@
 package com.fzy.weblog.admin.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.fzy.weblog.admin.model.vo.tag.AddTagReqVO;
 import com.fzy.weblog.admin.model.vo.tag.DeleteTagReqVO;
 import com.fzy.weblog.admin.model.vo.tag.FindTagPageListReqVO;
 import com.fzy.weblog.admin.model.vo.tag.SearchTagReqVO;
+import com.fzy.weblog.common.domain.dos.TagDO;
 import com.fzy.weblog.common.utils.PageResponse;
 import com.fzy.weblog.common.utils.Response;
 
@@ -13,7 +15,8 @@ import com.fzy.weblog.common.utils.Response;
  * @description:
  *
  */
-public interface AdminTagService {
+public interface AdminTagService extends IService<TagDO> {
+
     /**
      * 添加标签集合
      * @param addTagReqVO
@@ -45,4 +48,5 @@ public interface AdminTagService {
      * @return
      */
     Response findTagSelectList();
+
 }

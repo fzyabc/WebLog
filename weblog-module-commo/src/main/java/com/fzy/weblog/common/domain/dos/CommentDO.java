@@ -8,24 +8,41 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@TableName("t_tag")
-public class TagDO {
+@TableName("t_comment")
+public class CommentDO {
 
     @TableId(type = IdType.AUTO)
-
     private Long id;
 
-    private String name;
+    private String content;
+
+    private String avatar;
+
+    private String nickname;
+
+    private String mail;
+
+    private String website;
+
+    private String routerUrl;
+
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;
 
     private Boolean isDeleted;
+
+    private Long replyCommentId;
+
+    private Long parentCommentId;
+
+    private Integer status;
+
+    private String reason;
 }

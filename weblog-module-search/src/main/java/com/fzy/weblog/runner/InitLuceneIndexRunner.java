@@ -65,6 +65,11 @@ public class InitLuceneIndexRunner implements CommandLineRunner {
 
             // 查询文章正文
             ArticleContentDO articleContentDO = articleContentMapper.selectByArticleId(articleId);
+            if (articleContentDO == null) {
+                log.warn("==> 文章ID为 {} 的正文内容未找到，跳过该文章的索引创建。", articleId);
+                return; // 继续下一个文章
+            }
+
             // 构建文档
             Document document = new Document();
             // 设置文档字段 Field

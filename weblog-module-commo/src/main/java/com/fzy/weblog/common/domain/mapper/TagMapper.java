@@ -1,10 +1,10 @@
 package com.fzy.weblog.common.domain.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.fzy.weblog.common.domain.dos.CategoryDO;
 import com.fzy.weblog.common.domain.dos.TagDO;
 
 import java.time.LocalDate;
@@ -43,5 +43,12 @@ return selectList(queryWrapper);
     default List<TagDO> selectByIds(List<Long> tagIds) {
         return selectList(Wrappers.<TagDO>lambdaQuery()
                 .in(TagDO::getId, tagIds));
+    }
+    default List<TagDO> selectAll(QueryWrapper<TagDO> queryWrapper) {
+        return selectList(Wrappers.<TagDO>lambdaQuery());
+    }
+//批量导入标签
+    default List<TagDO> batchInsert(List<TagDO> tagList){
+        return batchInsert(tagList);
     }
 }

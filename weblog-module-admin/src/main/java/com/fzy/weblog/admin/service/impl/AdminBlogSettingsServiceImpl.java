@@ -33,6 +33,9 @@ public class AdminBlogSettingsServiceImpl extends ServiceImpl<BlogSettingsMapper
                 .giteeHomepage(updateBlogSettingsReqVO.getGiteeHomepage())
                 .csdnHomepage(updateBlogSettingsReqVO.getCsdnHomepage())
                 .zhihuHomepage(updateBlogSettingsReqVO.getZhihuHomepage())
+                .mail(updateBlogSettingsReqVO.getMail())
+                .isCommentSensiWordOpen(updateBlogSettingsReqVO.getIsCommentSensiWordOpen())
+                .isCommentExamineOpen(updateBlogSettingsReqVO.getIsCommentExamineOpen())
                 .build();
 saveOrUpdate(blogSettingsDO);
         return Response.success();
@@ -52,6 +55,9 @@ saveOrUpdate(blogSettingsDO);
                 .giteeHomepage(blogSettingsDO.getGiteeHomepage())
                 .csdnHomepage(blogSettingsDO.getCsdnHomepage())
                 .zhihuHomepage(blogSettingsDO.getZhihuHomepage())
+                .mail(blogSettingsDO.getMail())
+                .isCommentSensiWordOpen(blogSettingsDO.getIsCommentSensiWordOpen())
+                .isCommentExamineOpen(blogSettingsDO.getIsCommentExamineOpen())
                 .build();
         return Response.success(findBlogSettingsRspVO);
     }
